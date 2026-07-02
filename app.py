@@ -22,6 +22,52 @@ BUTTON_VALUES = {
 }
 
 
+def render_responsive_styles() -> None:
+    st.markdown(
+        """
+        <style>
+        .st-key-calculator_keypad button {
+            min-height: 3.1rem;
+            font-size: 1.15rem;
+            font-weight: 700;
+            border-radius: 0.45rem;
+        }
+
+        @media (max-width: 640px) {
+            .block-container {
+                padding-left: 0.85rem;
+                padding-right: 0.85rem;
+            }
+
+            .st-key-calculator_keypad [data-testid="stHorizontalBlock"] {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 0.45rem;
+            }
+
+            .st-key-calculator_keypad [data-testid="stHorizontalBlock"] > div {
+                width: 100% !important;
+                min-width: 0 !important;
+                flex: none !important;
+            }
+
+            .st-key-calculator_keypad [data-testid="stHorizontalBlock"]:has(> div:only-child) {
+                grid-template-columns: 1fr;
+            }
+
+            .st-key-calculator_keypad button {
+                min-height: 3.35rem;
+                padding-left: 0;
+                padding-right: 0;
+                font-size: 1.2rem;
+            }
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def initialize_state() -> None:
     defaults = {
         "expression": "",
@@ -87,17 +133,18 @@ def handle_button(label: str) -> None:
 
 
 def render_buttons() -> None:
-    for row in BUTTON_ROWS:
-        columns = st.columns(len(row), gap="small")
-        for column, label in zip(columns, row):
-            button_type = "primary" if label == "=" else "secondary"
-            column.button(
-                label,
-                use_container_width=True,
-                type=button_type,
-                on_click=handle_button,
-                args=(label,),
-            )
+    with st.container(key="calculator_keypad"):
+        for row in BUTTON_ROWS:
+            columns = st.columns(len(row), gap="small")
+            for column, label in zip(columns, row):
+                button_type = "primary" if label == "=" else "secondary"
+                column.button(
+                    label,
+                    use_container_width=True,
+                    type=button_type,
+                    on_click=handle_button,
+                    args=(label,),
+                )
 
 
 def render_history() -> None:
@@ -117,6 +164,7 @@ def render_history() -> None:
 def main() -> None:
     st.set_page_config(page_title="在线计算器", layout="wide")
     initialize_state()
+    render_responsive_styles()
 
     st.title("在线计算器")
     st.caption("使用 Python + Streamlit 实现，支持四则运算、括号、小数、百分号、负数和历史记录。")
