@@ -91,10 +91,13 @@ def render_buttons() -> None:
         columns = st.columns(len(row), gap="small")
         for column, label in zip(columns, row):
             button_type = "primary" if label == "=" else "secondary"
-            use_width = label == "="
-            if column.button(label, use_container_width=use_width or True, type=button_type):
-                handle_button(label)
-                st.rerun()
+            column.button(
+                label,
+                use_container_width=True,
+                type=button_type,
+                on_click=handle_button,
+                args=(label,),
+            )
 
 
 def render_history() -> None:
@@ -149,11 +152,18 @@ def main() -> None:
         st.subheader("示例")
         examples = ["1+2*3", "(1+2)*3", "10/4", "50%", "200*10%", "-2+5", "5*-2", "0.1+0.2"]
         for example in examples:
-            if st.button(example, use_container_width=True):
-                st.session_state.expression = example
-                st.session_state.input_expression = example
-                calculate_current_expression()
-                st.rerun()
+            st.button(
+                example,
+                use_container_width=True,
+                on_click=load_example,
+                args=(example,),
+            )
+
+
+def load_example(example: str) -> None:
+    st.session_state.expression = example
+    st.session_state.input_expression = example
+    calculate_current_expression()
 
 
 if __name__ == "__main__":
